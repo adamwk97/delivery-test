@@ -1,0 +1,62 @@
+<h1 id="delivery-driver-customer-analysis">Delivery Driver Customer Analysis</h1>
+<p>Delivery Customer Data of 199 Observations with Data Taken on the Following Variables:</p>
+<p>Date | Address | Order Amount | Tip Amount | Age | Time | Tip Included | Dog Owner</p>
+<p>=======================================================</p>
+<pre class="sourceCode r"><code class="sourceCode r">p1 =<span class="st"> </span><span class="kw">ggplot</span>(mtcars, <span class="kw">aes</span>(mpg, wt, <span class="dt">color =</span> cyl)) +<span class="st"> </span><span class="kw">geom_point</span>()
+<span class="kw">ggplotly</span>(p1)</code></pre>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-3-1.png" />
+</div>
+<p>Delivery Map of Tampa, Florida Based on Tip Percentage of Total Order (Tip Percentage)</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-4-1.png" />
+</div>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-5-1.png" />
+</div>
+<p>Average Tip Percentage of Dog Owners is 0.1417</p>
+<p><img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-6-1.png" /> Average Tip Percentage of Non-Dog Owners is 0.1429.</p>
+<p>Scatterplot of Tip Percentage of Total Order by Dog Owner</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-7-1.png" />
+</div>
+<p>Scatterplot by Gender</p>
+<p>Average Tip Percentage of Males is 0.1406</p>
+<p>Average Tip Percentage of Females is 0.145</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-8-1.png" />
+</div>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(df$Age, df$TipPercentage, <span class="dt">color =</span> df$Gender)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_jitter</span>(<span class="dt">size =</span> <span class="dv">3</span>) +<span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;Age&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Tip Percentage&quot;</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">color =</span> <span class="st">&quot;Gender&quot;</span>) +<span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Percentage of Tip Based on Age&quot;</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> <span class="st">&quot;lm&quot;</span>)</code></pre>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-9-1.png" />
+</div>
+<p>Time Sequence Bar Chart of Orders Placed by Gender</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-10-1.png" />
+</div>
+<p>Time Sequence Plots by Dog Owner vs. No Dog Owner</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-11-1.png" />
+</div>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-12-1.png" />
+</div>
+<p>Time Sequence Dot Plot of Orders Placed and Tip Amount ($)</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-13-1.png" />
+</div>
+<p>Time Sequence Dot Plot of Orders Placed</p>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-14-1.png" />
+</div>
+<p>Linear Models</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(df, <span class="kw">aes</span>(df$OrderAmt, df$TipAmt, <span class="dt">size =</span> df$Age, <span class="dt">fill =</span> Gender)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_smooth</span>(<span class="dt">method =</span> lm, <span class="dt">show.legend =</span> <span class="ot">FALSE</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">xlab</span>(<span class="st">&quot;Order Amount&quot;</span>) +<span class="st"> </span><span class="kw">ylab</span>(<span class="st">&quot;Tip Amount&quot;</span>) +<span class="st"> </span><span class="kw">scale_color_gradient</span>(<span class="dt">low =</span> <span class="st">&quot;blue&quot;</span>, 
+    <span class="dt">high =</span> <span class="st">&quot;red&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">size =</span> <span class="st">&quot;Age&quot;</span>, <span class="dt">color =</span> <span class="st">&quot;Annual Precipitation&quot;</span>)</code></pre>
+<div class="figure">
+<img src="Delivery-Analysis_files/figure-markdown_github/unnamed-chunk-15-1.png" />
+</div>

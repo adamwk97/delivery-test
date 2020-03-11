@@ -1,0 +1,201 @@
+---
+title: "Delivery Driver Customer Analysis"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = FALSE}
+df = read.csv("C:/Users/adamw/Documents/Data Textmining/Delivery Data/Delivery Data - Sheet1 (1).csv")
+
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+Delivery Customer Data of `r nrow(df)` Observations with Data Taken on the Following Variables: 
+
+Date | Address | Order Amount | Tip Amount | Age | Time | Tip Included | Dog Owner 
+
+=======================================================
+
+
+```{r,message = FALSE, comment = NA, warning = FALSE, echo = FALSE}
+library(ggplot2)
+library(ggmap)
+library(gridExtra)
+library(ggiraph)
+library(plotly)
+
+#address = c("3822 W Bay to Bay Blvd Tampa", "22 W Spanish Main St Tampa", "4507 W Dale Ave Tampa")
+
+#type = c("CC", "Cash", "CC")
+
+#tipamount = c(5.00, 15.00, 10.00)
+
+#df = data.frame(address, type, tipamount)
+df$Address = as.character(df$Address)
+register_google(key = "AIzaSyDLHeQB3O4nhAMtQJLRVKpGohvk5FPB3dg")
+df$latlon = geocode(df$Address)
+df$TipPercentage = df$TipAmt/df$OrderAmt
+df$Gender = as.factor(df$Gender)
+```
+```{r}
+p1 = ggplot(mtcars, aes(mpg, wt, color = cyl)) + geom_point()
+ggplotly(p1)
+```
+
+
+Delivery Map of Tampa, Florida Based on Tip Percentage of Total Order (Tip Percentage)
+
+```{r, message = FALSE, comment = NA, warning = FALSE, echo = FALSE}
+tampa.map <-get_map(c(-82.492610,27.914840), zoom = 12,maptype = "terrain")
+
+mapSimple <- ggmap(tampa.map)
+
+df = subset(df, df$TipPercentage <= .35)
+
+dfdog = subset(df, Dog == "Yes")
+dfnodog = subset(df, Dog == "No")
+
+dfmale = subset(df, Gender == "Male")
+dffemale = subset(df, Gender == "Female")
+
+df$Hover = paste("Order Amount: ", df$OrderAmt, sep = "\n","Tip Amount: ",df$TipAmt)
+
+#mapSimple+geom_point(data = df, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage), size = 3, alpha = 6/10)+scale_color_gradient(low="blue", high="red")+ggtitle("Delivery Map - Tampa, Florida")
+
+
+g = mapSimple+geom_point_interactive(data = df, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage, tooltip = df$Hover, data_id = df$TipAmt), size = 4, alpha = 6/10)+scale_color_gradient(low="blue", high="red")+ggtitle("Delivery Map - Tampa, Florida")
+g = girafe(code = print(g),width_svg = 10, height_svg = 7)
+girafe_options(x = g, opts_zoom(min = .5, max = 3),  opts_hover(css = "fill:wheat;stroke:orange;r:5pt;"),opts_tooltip(opacity = .7,
+    offx = 20, offy = -10,
+    use_fill = TRUE, use_stroke = TRUE,
+    delay_mouseout = 1000))
+```
+
+
+```{r, message = FALSE, comment = NA, warning = FALSE, echo = FALSE}
+#mapSimple+geom_point(data = df, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage,alpha=0.80), size = 6)+scale_color_gradient(low="blue", high="red")
+
+## Map of Tip Pct by Dog
+mapSimple+geom_point(data = dfdog, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage,), size = 3, alpha = 6/10)+scale_color_gradient(low="blue", high="red",  limits=c(0,.35))+ggtitle("Tampa Delivery Map (Dog Owners)")
+
+
+#+scale_color_gradient2(midpoint = mean(tipamount), low = "blue", high = "red")
+#+stat_density_2d(aes(x = latlon$lon, y = latlon$lat), data = df, color = "blue")
+#mapSimple+geom_point(data = df2, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage), size = 6)+scale_color_gradient(low="blue", high="red")
+```
+
+Average Tip Percentage of Dog Owners is `r round(mean(dfdog$TipPercentage),4)`
+
+```{r, message = FALSE, comment = NA, warning = FALSE, echo = FALSE}
+mapSimple+geom_point(data = dfnodog, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage), size = 3, alpha = 6/10)+scale_color_gradient(low="blue", high="red",  limits=c(0,.35))+ggtitle("Tampa Delivery Map (Non-Dog Owners)")
+```
+Average Tip Percentage of Non-Dog Owners is `r round(mean(dfnodog$TipPercentage),4)`.
+
+\newpage
+Scatterplot of Tip Percentage of Total Order by Dog Owner
+
+```{r, message = FALSE, comment = NA, warning = FALSE, fig.height = 6, fig.width = 10, echo = FALSE}
+df = subset(df, df$OrderAmt < 120)
+#mean(dfnodog$TipPercentage)
+#mean(dfdog$TipPercentage)
+
+#plot average of tips using stat_summary
+#mapSimple+geom_point(data = dfdog, aes(x = latlon$lon, y = latlon$lat, color = TipPercentage, shape = Dog), size = 6)+scale_color_gradient(low="blue", high="red", limits=c(0,.6))
+
+#ggplot(df, aes(Dog, TipPercentage))+ 
+#ggplot(df, aes(Gender, TipPercentage))+ stat_summary(fun.y="mean", geom="bar", color = "blue", fill = "dark blue")
+
+ggplot(df, aes(df$OrderAmt, df$TipPercentage, color = df$Dog))+geom_jitter(
+)+ xlab("Order Amount")+ylab("Tip Percentage")+labs(color = "Dog Owner")+ggtitle("Percentage of Tip Based on Total Order")+
+  geom_smooth(method = "lm")
+
+```
+
+Scatterplot by Gender
+
+Average Tip Percentage of Males is `r round(mean(dfmale$TipPercentage),4)`
+
+Average Tip Percentage of Females is `r round(mean(dffemale$TipPercentage),4)`
+
+
+```{r, message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+ggplot(df, aes(df$OrderAmt, df$TipPercentage, color = df$Gender))+geom_jitter()+ xlab("Order Amount")+ylab("Tip Percentage")+labs(color = "Gender")+ggtitle("Percentage of Tip Based on Total Order")+
+  geom_smooth(method = "lm")
+
+#Average Tip Percentage of Males is `r mean(df$Gender[df$Gender == "Male"])`
+
+#Average Tip Percentage of Females is `r mean(df$Gender[df$Gender == "Female"])`
+```
+
+```{r}
+ggplot(df, aes(df$Age, df$TipPercentage, color = df$Gender))+geom_jitter(size = 3)+ xlab("Age")+ylab("Tip Percentage")+labs(color = "Gender")+ggtitle("Percentage of Tip Based on Age")+
+  geom_smooth(method = "lm")
+```
+
+
+\newpage
+Time Sequence Bar Chart of Orders Placed by Gender
+
+```{r, message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+
+df = subset(df, df$TipPercentage < .35)
+df$Time = as.POSIXct(df$Time,format="%H:%M:%S")
+
+dfdog = subset(df, Dog == "Yes")
+dfnodog = subset(df, Dog == "No")
+dfdog$Time = as.POSIXct(dfdog$Time,format="%H:%M:%S")
+dfnodog$Time = as.POSIXct(dfnodog$Time,format="%H:%M:%S")
+
+dfmale$Time = as.POSIXct(dfmale$Time,format="%H:%M:%S")
+dffemale$Time = as.POSIXct(dffemale$Time,format="%H:%M:%S")
+
+#df$Time = as.Date(df$Time)
+#df$Time = format(as.POSIXct(df$Time,format='%m/%d/%Y %H:%M:%S'),format='%H:%M')
+
+ggplot(df, aes(x=Time, fill= Gender))+geom_bar()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ylab("Number of Orders")+ggtitle("Number of Orders Based on Time of Day")+xlab("Time (PM)")
+
+```
+
+Time Sequence Plots by Dog Owner vs. No Dog Owner
+
+```{r, message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+dogtime1 = ggplot(dfdog, aes(x=Time, fill= Gender))+geom_bar()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ylab("Number of Orders")+ggtitle("Dog Owner")+xlab("Time (PM)")
+
+nodogtime1 = ggplot(dfnodog, aes(x=Time, fill= Gender))+geom_bar()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ylab("Number of Orders")+ggtitle("Non-Dog Owner")+xlab("Time (PM)")
+
+grid.arrange(dogtime1, nodogtime1, ncol = 1)
+```
+
+```{r,message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+maletime1 = ggplot(dfmale, aes(x=Time, fill= Gender))+geom_bar()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ylab("Number of Orders")+ggtitle("Male Order Times")+xlab("Time (PM)")
+
+femaletime1 = ggplot(dffemale, aes(x=Time, fill= Gender))+geom_bar()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ylab("Number of Orders")+ggtitle("Female Order Times")+xlab("Time (PM)")
+
+grid.arrange(maletime1, femaletime1, ncol = 1)
+```
+
+\newpage
+Time Sequence Dot Plot of Orders Placed and Tip Amount ($)
+
+```{r, message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+ggplot(df, aes(x=Time, y = TipAmt))+geom_jitter()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ggtitle("Number of Orders Based on Time of Day")
+```
+
+
+Time Sequence Dot Plot of Orders Placed
+
+```{r, message = FALSE, comment = NA, warning = FALSE,  fig.height = 6, fig.width = 10, echo = FALSE}
+ggplot(df, aes(x=Time, y = TipPercentage, color = Dog))+geom_jitter()+theme(axis.text.x = element_text(size = 12,angle = 80))+scale_x_datetime(date_breaks = "30 min", date_labels = "%H:%M")+ggtitle("Tip Percentage Based on Time of Day")
+```
+
+Linear Models
+
+```{r}
+ggplot(df, aes(df$OrderAmt, df$TipAmt, size = df$Age, fill = Gender))+geom_point()+geom_smooth(method = lm, show.legend = FALSE)+xlab("Order Amount")+ylab("Tip Amount")+scale_color_gradient(low="blue", high="red")+labs(size = "Age", color = "Annual Precipitation")
+```
+
+
